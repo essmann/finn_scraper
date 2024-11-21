@@ -21,11 +21,11 @@ def getAllPages(url=URL):
     
     page = requests.get(url)
     soup = BeautifulSoup(page.text, 'html.parser')
-    print(FIRST_URL_PART)
+    
     buttons_div = soup.find("div", class_="hidden md:block s-text-link")
     buttons_div_parent = buttons_div.parent
     next_button = buttons_div_parent.find("a", attrs={"rel":"next"})
-    print(next_button)
+   
     buttons = buttons_div.contents
     for button in buttons:
         href = button['href']
@@ -43,19 +43,20 @@ getAllPages()
 def getJobListings(page_number):
     job_listings_urls = []    
     #page_number_url_section = "&page={0}".format(page_number)
-    page_url = BASE_URL
     
-    page = requests.get(page_url)
-    soup = BeautifulSoup(page.text, 'html.parser')
     
-    divs = soup.find("div", class_="grid grid-cols-1 md:grid-cols-2 grid-flow-row-dense sf-result-list mt-8 -mx-8") #Divs with job listings
-    for div in divs:
-        anchor = div.find("a")
-        href = anchor.get("href")
-        
-        if(href):
-            job_listings_urls.append(href)
-        
+    
+    for PAGE in PAGES:
+        page = requests.get(PAGE)
+        soup = BeautifulSoup(page.text, 'html.parser')
+        divs = soup.find("div", class_="grid grid-cols-1 md:grid-cols-2 grid-flow-row-dense sf-result-list mt-8 -mx-8") #Divs with job listings
+        for div in divs:
+            anchor = div.find("a")
+            href = anchor.get("href")
+            
+            if(href):
+                job_listings_urls.append(href)
+            
     return job_listings_urls
 def scrapeJobs(listings):
     count = 0
