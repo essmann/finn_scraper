@@ -1,5 +1,5 @@
-import requests
 from bs4 import BeautifulSoup
+import requests
 import re
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,10 +11,39 @@ filters = {
     
     }
 
+URL = "https://www.finn.no/job/fulltime/search.html?industry=65&industry=33&industry=8&location=0.20001&occupation=0.23&occupation=0.22"
+FIRST_URL_PART = URL.split("?")[0]
+
+PAGES = []
+
+
+def getAllPages(url=URL):
+    
+    page = requests.get(url)
+    soup = BeautifulSoup(page.text, 'html.parser')
+    print(FIRST_URL_PART)
+    buttons_div = soup.find("div", class_="hidden md:block s-text-link")
+    buttons_div_parent = buttons_div.parent
+    next_button = buttons_div_parent.find("a", attrs={"rel":"next"})
+    print(next_button)
+    buttons = buttons_div.contents
+    for button in buttons:
+        href = button['href']
+        if FIRST_URL_PART + href not in PAGES:
+            PAGES.append(FIRST_URL_PART + href)
+        
+        if button.nextSibling == None:
+            if next_button == None:
+                break
+            newUrl = FIRST_URL_PART + href
+            getAllPages(newUrl)
+    
+        
+getAllPages()  
 def getJobListings(page_number):
     job_listings_urls = []    
     #page_number_url_section = "&page={0}".format(page_number)
-    page_url = "https://www.finn.no/job/fulltime/search.html?industry=8&industry=33&location=2.20001.22046.20220"
+    page_url = BASE_URL
     
     page = requests.get(page_url)
     soup = BeautifulSoup(page.text, 'html.parser')
